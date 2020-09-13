@@ -1,9 +1,11 @@
 package tk.zorgatone.engine_tester;
 
 import org.lwjgl.opengl.Display;
+import tk.zorgatone.models.TexturedModel;
 import tk.zorgatone.render_engine.DisplayManager;
 import tk.zorgatone.render_engine.Loader;
-import tk.zorgatone.render_engine.RawModel;
+import tk.zorgatone.models.RawModel;
+import tk.zorgatone.textures.ModelTexture;
 import tk.zorgatone.render_engine.Renderer;
 import tk.zorgatone.shaders.ShaderProgram;
 import tk.zorgatone.shaders.StaticShader;
@@ -22,7 +24,14 @@ public class MainGameLoop {
         -0.5f, 0.5f, 0f,  // V0
         -0.5f, -0.5f, 0f, // V1
         0.5f, -0.5f, 0f,  // V2
-        0.5f, 0.5f, 0f   // V3
+        0.5f, 0.5f, 0f,  // V3
+      };
+
+      final float[] textureCoords = {
+        0, 0, // V0
+        0, 1, // V1
+        1, 1, // V2
+        1, 0, // V3
       };
 
       final int[] indices = {
@@ -30,11 +39,12 @@ public class MainGameLoop {
         3, 1, 2  // Bottom right triangle (V3, V1, V2)
       };
 
-
       final Renderer renderer = new Renderer();
 
       loader = new Loader();
-      RawModel model = loader.loadToVAO(vertices, indices);
+      RawModel model = loader.loadToVAO(vertices, textureCoords, indices);
+      ModelTexture texture = new ModelTexture(loader.loadTexture("image"));
+      TexturedModel texturedModel = new TexturedModel(model, texture);
 
       shader = new StaticShader();
 
@@ -43,7 +53,7 @@ public class MainGameLoop {
         renderer.prepare();
 
         shader.start();
-        renderer.render(model);
+        renderer.render(texturedModel);
         shader.stop();
 
         DisplayManager.updateDisplay();

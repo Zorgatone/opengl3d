@@ -8,9 +8,9 @@ import org.lwjgl.opengl.GL20;
 
 public abstract class ShaderProgram {
 
-  private int programID;
-  private int vertexShaderID;
-  private int fragmentShaderID;
+  private final int programID;
+  private final int vertexShaderID;
+  private final int fragmentShaderID;
 
   private static int loadShader(String file, int type) {
     StringBuilder shaderSource = new StringBuilder();
@@ -50,10 +50,11 @@ public abstract class ShaderProgram {
 
     GL20.glAttachShader(programID, vertexShaderID);
     GL20.glAttachShader(programID, fragmentShaderID);
-    GL20.glLinkProgram(programID);
-    GL20.glValidateProgram(programID);
 
     bindAttributes();
+
+    GL20.glLinkProgram(programID);
+    GL20.glValidateProgram(programID);
   }
 
   public void start() {

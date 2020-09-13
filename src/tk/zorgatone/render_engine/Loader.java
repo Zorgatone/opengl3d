@@ -1,5 +1,7 @@
 package tk.zorgatone.render_engine;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -9,25 +11,46 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import tk.zorgatone.models.RawModel;
 
 public class Loader {
 
   private final List<Integer> vaos;
   private final List<Integer> vbos;
+  private final List<Integer> textures;
 
   public Loader() {
     vaos = new ArrayList<>();
     vbos = new ArrayList<>();
+    textures = new ArrayList<>();
   }
 
-  public RawModel loadToVAO(float[] positions, int[] indices) {
+  public RawModel loadToVAO(float[] positions, float[] textureCoords, int[] indices) {
     int vaoID = createVAO();
     bindIndicesBuffer(indices);
 
-    storeDataInAttributeList(0, positions);
+    storeDataInAttributeList(0, 3, positions);
+    storeDataInAttributeList(1, 2, textureCoords);
     unbindVAO();
 
     return new RawModel(vaoID, indices.length);
+  }
+
+  public int loadTexture(String fileName) {
+    Texture texture = null;
+    try {
+      texture = TextureLoader.getTexture("PNG", new FileInputStream("res/" + fileName + ".png"));
+    } catch (IOException e) {
+      e.printStackTrace(System.err);
+      System.exit(-1);
+    }
+
+    int textureID = texture.getTextureID();
+    textures.add(textureID);
+
+    return textureID;
   }
 
   public void cleanUp() {
@@ -37,6 +60,10 @@ public class Loader {
 
     for (int vbo : vbos) {
       GL15.glDeleteBuffers(vbo);
+    }
+
+    for (int texture : textures) {
+      GL11.glDeleteTextures(texture);
     }
   }
 
@@ -49,7 +76,7 @@ public class Loader {
   }
 
   @SuppressWarnings("SameParameterValue")
-  private void storeDataInAttributeList(int attributeNumber, float[] data) {
+  private void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data) {
     int vboID = GL15.glGenBuffers();
     vbos.add(vboID);
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID); // Specify type of VBO
@@ -58,7 +85,8 @@ public class Loader {
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
     GL20.glVertexAttribPointer(
       attributeNumber,
-      3, GL11.GL_FLOAT,
+      coordinateSize,
+      GL11.GL_FLOAT,
       false,
       0,
       0

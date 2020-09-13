@@ -1,4 +1,4 @@
-package tk.zorgatone.render_engine;
+package tk.zorgatone.models;
 
 /**
  * Represents the raw model of a VAO (its vertexes)
