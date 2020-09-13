@@ -5,17 +5,16 @@ import tk.zorgatone.render_engine.DisplayManager;
 import tk.zorgatone.render_engine.Loader;
 import tk.zorgatone.render_engine.RawModel;
 import tk.zorgatone.render_engine.Renderer;
+import tk.zorgatone.shaders.StaticShader;
 
 public class MainGameLoop {
 
   public static void main(String[] args) {
     Loader loader = null;
+    StaticShader shader = null;
 
     try {
       DisplayManager.createDisplay();
-
-      loader = new Loader();
-      final Renderer renderer = new Renderer();
 
       // OpenGL expects vertices to be defined counter clockwise by default
       final float[] vertices = {
@@ -29,23 +28,33 @@ public class MainGameLoop {
         -0.5f, 0.5f, 0f
       };
 
+      loader = new Loader();
       RawModel model = loader.loadToVAO(vertices);
+
+      final Renderer renderer = new Renderer();
+      shader = new StaticShader();
 
       while (!Display.isCloseRequested()) {
         renderer.prepare();
         // TODO: Game logic
 
-        // White rectangle won't render on osx without a shader
+        shader.start();
         renderer.render(model);
+        shader.stop();
 
         DisplayManager.updateDisplay();
       }
 
+      shader.cleanUp();
       loader.cleanUp();
       DisplayManager.closeDisplay();
     } catch (Exception e) {
       if (loader != null) {
         loader.cleanUp();
+      }
+
+      if (shader != null) {
+        shader.cleanUp();
       }
 
       DisplayManager.closeDisplay();
