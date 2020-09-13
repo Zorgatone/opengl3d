@@ -5,13 +5,14 @@ import tk.zorgatone.render_engine.DisplayManager;
 import tk.zorgatone.render_engine.Loader;
 import tk.zorgatone.render_engine.RawModel;
 import tk.zorgatone.render_engine.Renderer;
+import tk.zorgatone.shaders.ShaderProgram;
 import tk.zorgatone.shaders.StaticShader;
 
 public class MainGameLoop {
 
   public static void main(String[] args) {
     Loader loader = null;
-    StaticShader shader = null;
+    ShaderProgram shader = null;
 
     try {
       DisplayManager.createDisplay();
@@ -29,15 +30,17 @@ public class MainGameLoop {
         3, 1, 2  // Bottom right triangle (V3, V1, V2)
       };
 
+
+      final Renderer renderer = new Renderer();
+
       loader = new Loader();
       RawModel model = loader.loadToVAO(vertices, indices);
 
-      final Renderer renderer = new Renderer();
       shader = new StaticShader();
 
       while (!Display.isCloseRequested()) {
-        renderer.prepare();
         // TODO: Game logic
+        renderer.prepare();
 
         shader.start();
         renderer.render(model);
@@ -46,8 +49,8 @@ public class MainGameLoop {
         DisplayManager.updateDisplay();
       }
 
-      shader.cleanUp();
       loader.cleanUp();
+      shader.cleanUp();
       DisplayManager.closeDisplay();
     } catch (Exception e) {
       if (loader != null) {
@@ -60,7 +63,7 @@ public class MainGameLoop {
 
       DisplayManager.closeDisplay();
       e.printStackTrace(System.err);
-      System.exit(1);
+      System.exit(-1);
     }
   }
 

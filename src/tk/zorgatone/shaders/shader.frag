@@ -1,9 +1,11 @@
-#version 150
+#version 400 core
 
 in vec3 colour;
 
-out vec4 out_Color;
+out vec4 out_Colour;
 
-void main(void){
-    out_Color = vec4(colour, 1.0);
+void main(void) {
+
+    out_Colour = vec4(colour, 1.0);
+
 }
