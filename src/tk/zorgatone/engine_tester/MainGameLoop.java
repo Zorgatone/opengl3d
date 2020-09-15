@@ -1,59 +1,132 @@
 package tk.zorgatone.engine_tester;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Vector3f;
+import tk.zorgatone.entities.Camera;
+import tk.zorgatone.entities.Entity;
 import tk.zorgatone.models.TexturedModel;
 import tk.zorgatone.render_engine.DisplayManager;
 import tk.zorgatone.render_engine.Loader;
 import tk.zorgatone.models.RawModel;
 import tk.zorgatone.textures.ModelTexture;
 import tk.zorgatone.render_engine.Renderer;
-import tk.zorgatone.shaders.ShaderProgram;
 import tk.zorgatone.shaders.StaticShader;
 
 public class MainGameLoop {
 
   public static void main(String[] args) {
     Loader loader = null;
-    ShaderProgram shader = null;
+    StaticShader shader = null;
 
     try {
       DisplayManager.createDisplay();
 
       // OpenGL expects vertices to be defined counter clockwise by default
-      final float[] vertices = {
-        -0.5f, 0.5f, 0f,  // V0
-        -0.5f, -0.5f, 0f, // V1
-        0.5f, -0.5f, 0f,  // V2
-        0.5f, 0.5f, 0f,  // V3
+      float[] vertices = {
+        -0.5f, 0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+
+        0.5f, 0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+
+        -0.5f, 0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
+
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, 0.5f,
+
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, 0.5f,
       };
 
-      final float[] textureCoords = {
-        0, 0, // V0
-        0, 1, // V1
-        1, 1, // V2
-        1, 0, // V3
+      float[] textureCoordinates = {
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0,
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0,
       };
 
-      final int[] indices = {
-        0, 1, 3, // Top left triangle (V0, V1, V3)
-        3, 1, 2  // Bottom right triangle (V3, V1, V2)
+      int[] indices = {
+        0, 1, 3,
+        3, 1, 2,
+        4, 5, 7,
+        7, 5, 6,
+        8, 9, 11,
+        11, 9, 10,
+        12, 13, 15,
+        15, 13, 14,
+        16, 17, 19,
+        19, 17, 18,
+        20, 21, 23,
+        23, 21, 22,
       };
 
-      final Renderer renderer = new Renderer();
+      Camera camera = new Camera();
 
       loader = new Loader();
-      RawModel model = loader.loadToVAO(vertices, textureCoords, indices);
-      ModelTexture texture = new ModelTexture(loader.loadTexture("image"));
+      RawModel model = loader.loadToVAO(vertices, textureCoordinates, indices);
+
+      ModelTexture texture = new ModelTexture(
+        loader.loadTexture("image")
+      );
       TexturedModel texturedModel = new TexturedModel(model, texture);
+      Entity entity = new Entity(
+        texturedModel,
+        new Vector3f(0.0f, 0.0f, -5.0f),
+        0.0f, 0.0f, 0.0f,
+        1.0f
+      );
 
       shader = new StaticShader();
 
+      final Renderer renderer = new Renderer(shader);
+
       while (!Display.isCloseRequested()) {
-        // TODO: Game logic
+//        entity.increasePosition(0.0f, 0.0f, -0.1f);
+        entity.increaseRotation(1.0f, 1.0f, 0.0f);
+
+        camera.move();
+
         renderer.prepare();
 
         shader.start();
-        renderer.render(texturedModel);
+        shader.loadViewMatrix(camera);
+        renderer.render(entity, shader);
         shader.stop();
 
         DisplayManager.updateDisplay();

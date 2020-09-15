@@ -27,12 +27,14 @@ public class Loader {
     textures = new ArrayList<>();
   }
 
-  public RawModel loadToVAO(float[] positions, float[] textureCoords, int[] indices) {
+  public RawModel loadToVAO(
+    float[] positions, float[] textureCoordinates, int[] indices
+  ) {
     int vaoID = createVAO();
     bindIndicesBuffer(indices);
 
     storeDataInAttributeList(0, 3, positions);
-    storeDataInAttributeList(1, 2, textureCoords);
+    storeDataInAttributeList(1, 2, textureCoordinates);
     unbindVAO();
 
     return new RawModel(vaoID, indices.length);
@@ -41,7 +43,9 @@ public class Loader {
   public int loadTexture(String fileName) {
     Texture texture = null;
     try {
-      texture = TextureLoader.getTexture("PNG", new FileInputStream("res/" + fileName + ".png"));
+      texture = TextureLoader.getTexture(
+        "PNG", new FileInputStream("res/" + fileName + ".png")
+      );
     } catch (IOException e) {
       e.printStackTrace(System.err);
       System.exit(-1);
@@ -76,7 +80,9 @@ public class Loader {
   }
 
   @SuppressWarnings("SameParameterValue")
-  private void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data) {
+  private void storeDataInAttributeList(
+    int attributeNumber, int coordinateSize, float[] data
+  ) {
     int vboID = GL15.glGenBuffers();
     vbos.add(vboID);
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID); // Specify type of VBO
@@ -104,7 +110,9 @@ public class Loader {
     // Specify type of VBO
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
     IntBuffer buffer = storeDataInIntBuffer(indices);
-    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+    GL15.glBufferData(
+      GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW
+    );
   }
 
   private IntBuffer storeDataInIntBuffer(int[] data) {
