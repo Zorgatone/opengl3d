@@ -29,10 +29,10 @@ public class ObjLoader {
     List<Vector2f> textures = new ArrayList<>();
     List<Vector3f> normals = new ArrayList<>();
     List<Integer> indices = new ArrayList<>();
-    float[] verticesArray = null;
+    float[] verticesArray;
     float[] normalsArray = null;
     float[] textureArray = null;
-    int[] indicesArray = null;
+    int[] indicesArray;
 
     try (BufferedReader reader = new BufferedReader(fileReader)) {
       while (true) {
@@ -123,7 +123,9 @@ public class ObjLoader {
       indicesArray[i] = indices.get(i);
     }
 
-    return loader.loadToVAO(verticesArray, textureArray, indicesArray);
+    return loader.loadToVAO(
+      verticesArray, textureArray, normalsArray, indicesArray
+    );
   }
 
   private static void processVertex(

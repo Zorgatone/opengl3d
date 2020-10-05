@@ -2,6 +2,7 @@ package tk.zorgatone.shaders;
 
 import org.lwjgl.util.vector.Matrix4f;
 import tk.zorgatone.entities.Camera;
+import tk.zorgatone.entities.Light;
 import tk.zorgatone.toolbox.Maths;
 
 public class StaticShader extends ShaderProgram {
@@ -12,6 +13,8 @@ public class StaticShader extends ShaderProgram {
   private int locationTransformationMatrix;
   private int locationProjectionMatrix;
   private int locationViewMatrix;
+  private int locationLightPosition;
+  private int locationLightColour;
 
   public StaticShader() {
     super(VERTEX_FILE, FRAGMENT_FILE);
@@ -20,7 +23,8 @@ public class StaticShader extends ShaderProgram {
   @Override
   protected void bindAttributes() {
     bindAttribute(0, "position");
-    bindAttribute(1, "textureCoords");
+    bindAttribute(1, "textureCoordinates");
+    bindAttribute(2, "normal");
   }
 
   @Override
@@ -28,6 +32,8 @@ public class StaticShader extends ShaderProgram {
     locationTransformationMatrix = getUniformLocation("transformationMatrix");
     locationProjectionMatrix = getUniformLocation("projectionMatrix");
     locationViewMatrix = getUniformLocation("viewMatrix");
+    locationLightPosition = getUniformLocation("lightPosition");
+    locationLightColour = getUniformLocation("lightColour");
   }
 
   public void loadTransformationMatrix(Matrix4f matrix) {
@@ -47,6 +53,11 @@ public class StaticShader extends ShaderProgram {
 
   public void loadProjectionMatrix(Matrix4f projection) {
     loadMatrix(locationProjectionMatrix, projection);
+  }
+
+  public void loadLight(Light light) {
+    loadVector(locationLightPosition, light.getPosition());
+    loadVector(locationLightColour, light.getColour());
   }
 
 }

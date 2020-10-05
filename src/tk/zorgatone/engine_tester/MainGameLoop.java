@@ -4,6 +4,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 import tk.zorgatone.entities.Camera;
 import tk.zorgatone.entities.Entity;
+import tk.zorgatone.entities.Light;
 import tk.zorgatone.models.TexturedModel;
 import tk.zorgatone.render_engine.DisplayManager;
 import tk.zorgatone.render_engine.Loader;
@@ -25,17 +26,19 @@ public class MainGameLoop {
       Camera camera = new Camera();
 
       loader = new Loader();
-      RawModel model = ObjLoader.loadObjModel("monkey", loader);
 
-      ModelTexture texture = new ModelTexture(
-        loader.loadTexture("monkeyTexture")
-      );
-      TexturedModel texturedModel = new TexturedModel(model, texture);
       Entity entity = new Entity(
-        texturedModel,
-        new Vector3f(0.0f, 0.0f, -15.0f),
+        new TexturedModel(
+          ObjLoader.loadObjModel("dragon", loader),
+          new ModelTexture(loader.loadTexture("dragonTexture"))
+        ),
+        new Vector3f(0.0f, 0.0f, -25.0f),
         0.0f, 0.0f, 0.0f,
         1.0f
+      );
+      Light light = new Light(
+        new Vector3f(0.0f, 0.0f, -20.0f),
+        new Vector3f(1.0f, 1.0f, 1.0f)
       );
 
       shader = new StaticShader();
@@ -45,12 +48,12 @@ public class MainGameLoop {
       while (!Display.isCloseRequested()) {
 //        entity.increasePosition(0.0f, 0.0f, -0.1f);
         entity.increaseRotation(0.0f, 1.0f, 0.0f);
-
         camera.move();
 
         renderer.prepare();
 
         shader.start();
+        shader.loadLight(light);
         shader.loadViewMatrix(camera);
         renderer.render(entity, shader);
         shader.stop();
